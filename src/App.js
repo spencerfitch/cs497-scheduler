@@ -52,13 +52,11 @@ const CourseList = ({ courses }) => (
   </div>
 );
 
-function App() {
-  return (
-    <div>
-      <Banner title={ schedule.title } />
-      <CourseList courses={ schedule.courses } />
-    </div>
-  );
-}
+const App = () => (
+  <div>
+    <Banner title={ schedule.title } />
+    <CourseList courses={ schedule.courses } />
+  </div>
+);
 
 export default App;
