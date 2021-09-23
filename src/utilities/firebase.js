@@ -1,8 +1,8 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
+import firebase from 'firebase/app';
+import 'firebase/database';
 import { useObjectVal } from 'react-firebase-hooks/database';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import 'firebase/compat/auth';
+import 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqBn4U-GsldDiCs5nm7619uPr6Y6z1X2s",
