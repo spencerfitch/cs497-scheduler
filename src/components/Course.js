@@ -1,6 +1,6 @@
 import React from 'react';
 import { getCourseTerm, hasConflict, timeParts } from "../utilities/times";
-import { setData } from '../utilities/firebase';
+import { setData, useUserState } from '../utilities/firebase';
 
 const toggle = (x, lst) => (
   lst.includes(x) ? lst.filter(y => y !== x) : [x, ...lst]
@@ -31,6 +31,7 @@ const reschedule = async (course, meets) => {
 const Course = ({ course, selected, setSelected }) => {
   const isSelected = selected.includes(course);
   const isDisabled = !isSelected && hasConflict(course, selected);
+  const [user] = useUserState();
   const style = {
     backgroundColor: isDisabled ? 'lightgrey' : isSelected ? 'lightgreen' : 'white'
   };
@@ -39,7 +40,7 @@ const Course = ({ course, selected, setSelected }) => {
       className="card m-1 p-2"
       style={style}
       onClick={isDisabled ? null : () => setSelected(toggle(course, selected))}
-      onDoubleClick={() => reschedule(course, getCourseMeetingData(course))}
+      onDoubleClick={!user ? null : () => reschedule(course, getCourseMeetingData(course))}
     >
       <div className="card-body">
         <div className="card-title">{ getCourseTerm(course) } CS { getCourseNumber(course) }</div>

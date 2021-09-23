@@ -1,6 +1,8 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import { useObjectVal } from 'react-firebase-hooks/database';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import 'firebase/compat/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqBn4U-GsldDiCs5nm7619uPr6Y6z1X2s",
@@ -22,3 +24,12 @@ export const useData = (path, transform) => (
 export const setData = (path, value) => (
   firebase.database().ref(path).set(value)
 );
+
+export const signInWithGoogle = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider);
+}
+
+export const signOut = () => firebase.auth().signOut();
+
+export const useUserState = () => useAuthState(firebase.auth());
