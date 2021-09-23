@@ -18,3 +18,7 @@ firebase.initializeApp(firebaseConfig);
 export const useData = (path, transform) => (
   useObjectVal(firebase.database().ref(path), { transform })
 );
+
+export const setData = (path, value) => (
+  firebase.database().ref(path).set(value)
+);
