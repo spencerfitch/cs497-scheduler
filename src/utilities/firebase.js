@@ -1,8 +1,8 @@
-import firebase from 'firebase/app';
-import 'firebase/database';
-import { useObjectVal } from 'react-firebase-hooks/database';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, onValue, ref, set } from 'firebase/database';
+import { getAuth, GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { getUA } from '@firebase/util';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqBn4U-GsldDiCs5nm7619uPr6Y6z1X2s",
@@ -15,21 +15,49 @@ const firebaseConfig = {
   measurementId: "G-8RTSPW7MW7"
 };
 
-firebase.initializeApp(firebaseConfig);
+const firebase = initializeApp(firebaseConfig);
+const database = getDatabase();
 
-export const useData = (path, transform) => (
-  useObjectVal(firebase.database().ref(path), { transform })
-);
+export const useData = (path, transform) => {
+  const [data, setData] = useState();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect (() => {
+    const dbRef = ref(database, path);
+    return onValue(dbRef, (snapshot) => {
+      const val = snapshot.val();
+      setData(transform ? transform(val) : val);
+      setLoading(false);
+      setError(null);
+    }, (error) => {
+      setData(null);
+      setLoading(false);
+      setError(error);
+    });
+  }, [path, transform]);
+
+  return [data, loading, error];
+};
 
 export const setData = (path, value) => (
-  firebase.database().ref(path).set(value)
+  set(ref(database, path), value)
 );
 
 export const signInWithGoogle = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider);
+  signInWithPopup(getAuth(), new GoogleAuthProvider());
 }
 
-export const signOut = () => firebase.auth().signOut();
+export const signOut = () => {
+  firebaseSignOut(getAuth());
+}
 
-export const useUserState = () => useAuthState(firebase.auth());
+export const useUserState = () => {
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    onIdTokenChanged(getAuth(), setUser);
+  }, []);
+
+  return [user];
+};
