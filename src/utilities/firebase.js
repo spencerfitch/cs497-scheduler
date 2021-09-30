@@ -1,8 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, onValue, ref, set } from 'firebase/database';
-import { getAuth, GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { getUA } from '@firebase/util';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBqBn4U-GsldDiCs5nm7619uPr6Y6z1X2s",
@@ -16,7 +15,7 @@ const firebaseConfig = {
 };
 
 const firebase = initializeApp(firebaseConfig);
-const database = getDatabase();
+const database = getDatabase(firebase);
 
 export const useData = (path, transform) => {
   const [data, setData] = useState();
@@ -25,8 +24,11 @@ export const useData = (path, transform) => {
 
   useEffect (() => {
     const dbRef = ref(database, path);
+    const devMode = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+    if (devMode) { console.log(`loading ${path}`); }
     return onValue(dbRef, (snapshot) => {
       const val = snapshot.val();
+      if (devMode) { console.log(val); }
       setData(transform ? transform(val) : val);
       setLoading(false);
       setError(null);
@@ -45,12 +47,11 @@ export const setData = (path, value) => (
 );
 
 export const signInWithGoogle = () => {
-  signInWithPopup(getAuth(), new GoogleAuthProvider());
-}
+  signInWithPopup(getAuth(firebase), new GoogleAuthProvider());
+};
 
-export const signOut = () => {
-  firebaseSignOut(getAuth());
-}
+const firebaseSignOut = () => signOut(getAuth(firebase));
+export { firebaseSignOut as signOut };
 
 export const useUserState = () => {
   const [user, setUser] = useState();
